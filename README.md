@@ -2,6 +2,13 @@
 
 A premium, production-quality personal portfolio for **Harshit Raj** — Full Stack Developer (React · MERN · Java · AI). Dark-first design with a polished light mode, smooth scrollspy navigation, animated case-study project pages, and an accessible, responsive layout.
 
+## Live site
+
+- **Portfolio:** [View the live website](https://personal-portfolio-5hey45qti-harshitraj7304s-projects.vercel.app)
+- **Source code:** [GitHub repository](https://github.com/harshitraj7304/personal-portfolio)
+
+The site is deployed on Vercel from the `main` branch. New commits pushed to `main` trigger a production deployment.
+
 ## Tech stack
 
 - **React 19** + **Vite** (JavaScript, no TypeScript)
@@ -26,9 +33,10 @@ The frontend runs standalone with no backend configured — all content comes fr
 
 ## Backend (Phase 1 — foundation)
 
-The portfolio is being extended with a private admin panel, document vault and
-contact inbox. The backend is **additive**: with no environment configured the
-public site behaves exactly as it always has.
+Server-side foundations for private admin authentication, document storage and
+contact handling are included. The public portfolio works without backend
+configuration; the API features require the Supabase and other environment
+variables described in [`docs/SETUP.md`](docs/SETUP.md).
 
 ```
 api/              Vercel serverless functions
@@ -80,11 +88,11 @@ All content is data-driven — edit these files, no component changes needed:
 
 Assets live in `public/`: replace `public/harshit.jpg` (portrait), `public/resume/Harshit_Raj_Resume.pdf`, and screenshots under `public/projects/<slug>/`.
 
-## Things to update before going live
+## Production notes
 
-- **Domain:** canonical URLs point at `https://harshitraj.dev`. Attach the domain in Vercel and add a redirect from `harshit-raj.vercel.app` → the apex so existing links keep working.
+- **Custom domain:** the live site currently uses its Vercel deployment URL. The canonical metadata in `index.html` points to `https://harshitraj.dev`; update it when that domain is ready to serve this version of the portfolio.
 - **OG image:** add a real `public/og-image.png` (1200×630) and confirm the path in `index.html`.
-- **Contact form:** it currently opens the visitor's email client (`mailto`). A real backend endpoint arrives in Phase 4; the `mailto` path stays as the fallback.
+- **Contact form:** currently opens the visitor's email client (`mailto`).
 - **Certificate links:** add `credentialUrl`s in `src/data/certifications.js` if/when available.
 - **LinkedIn:** confirm the slug in `src/data/profile.js`.
 
@@ -93,6 +101,10 @@ Assets live in `public/`: replace `public/harshit.jpg` (portrait), `public/resum
 Works out of the box on **Vercel** — `vercel.json` handles SPA deep-link rewrites,
 routes `/api/*` to the serverless functions, and sets security headers. Build
 command `npm run build`, output directory `dist`.
+
+Vercel builds production deployments from `main`. The public frontend does not
+depend on backend environment variables; configure them in Vercel before using
+the API-backed features. See [`docs/SETUP.md`](docs/SETUP.md) for setup steps.
 
 `public/_redirects` is kept for Netlify compatibility; it is inert on Vercel.
 Note that Netlify would serve the SPA but **not** the `/api` functions, which are
