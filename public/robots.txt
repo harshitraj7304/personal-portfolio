@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/
+User-agent: *
+Allow: /
+
+# Private surfaces. These are already protected by authentication — this only
+# keeps them out of search results and crawl budget.
+Disallow: /admin
+Disallow: /api/
+Disallow: /share/
+
+Sitemap: https://harshitraj.dev/sitemap.xml

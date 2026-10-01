@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: `.dark` on <html> toggles the dark palette. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ */
+/*  Semantic theme tokens                                              */
+/*  :root = light (polished, not inverted) · .dark = primary palette   */
+/* ------------------------------------------------------------------ */
+:root {
+  --background: #f5f5fb;
+  --surface: #ffffff;
+  --surface-2: #fbfbfe;
+  --border: #e7e7f0;
+  --border-strong: #d6d6e4;
+  --foreground: #14141d;
+  --muted-foreground: #55556a;
+  --primary: #6d5efc;
+  --primary-foreground: #ffffff;
+  --accent: #7c3aed;
+  --accent-cyan: #0891b2;
+  --ring: #6d5efc;
+  --card: #ffffff;
+
+  --grid-line: rgba(20, 20, 40, 0.045);
+  --glow-1: rgba(109, 94, 252, 0.18);
+  --glow-2: rgba(34, 211, 238, 0.12);
+}
+
+.dark {
+  --background: #0a0a12;
+  --surface: #101019;
+  --surface-2: #15151f;
+  --border: #23232f;
+  --border-strong: #32323f;
+  --foreground: #ececf3;
+  --muted-foreground: #9a9ab0;
+  --primary: #818cf8;
+  --primary-foreground: #0a0a12;
+  --accent: #a78bfa;
+  --accent-cyan: #22d3ee;
+  --ring: #818cf8;
+  --card: #101019;
+
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --glow-1: rgba(129, 140, 248, 0.22);
+  --glow-2: rgba(34, 211, 238, 0.14);
+}
+
+/* Map semantic tokens into Tailwind's color system so `bg-background`,
+   `text-foreground`, `border-border`, `text-primary`, etc. all work. */
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-ring: var(--ring);
+  --color-card: var(--card);
+
+  --radius-4xl: 2rem;
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* keep anchored sections clear of the sticky navbar */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 30%, transparent);
+    color: var(--foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+    border: 3px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reusable component utilities                                       */
+/* ------------------------------------------------------------------ */
+@layer components {
+  .text-gradient {
+    background-image: linear-gradient(
+      120deg,
+      var(--primary),
+      var(--accent) 55%,
+      var(--accent-cyan)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass {
+    background-color: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  .ring-focus {
+    outline: none;
+  }
+  .ring-focus:focus-visible {
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+  }
+
+  /* subtle blueprint grid used behind hero / sections */
+  .bg-grid {
+    background-image: linear-gradient(
+        to right,
+        var(--grid-line) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(var(--grid-line) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Motion preferences                                                 */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

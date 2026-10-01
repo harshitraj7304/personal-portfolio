@@ -1,0 +1,74 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "rewrites": [
+    {
+      "//": "MUST come first. The previous config had only the SPA catch-all, which would rewrite /api/* to index.html and make every function unreachable.",
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "//": "Unchanged SPA fallback — this is what keeps client-side routing working.",
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "//": "API responses may carry session state. A shared cache must never store them.",
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "//": "Stops the browser second-guessing declared content types, which is how a text upload becomes executable script.",
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "//": "Send the full URL to our own origin, only the bare origin cross-site. Prevents leaking share-token paths in Referer headers.",
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "//": "No framing at all — nothing here is designed to be embedded, and this closes clickjacking of the admin panel.",
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "//": "Force HTTPS for two years, including subdomains. Vercel terminates TLS, so this is safe.",
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "//": "Isolates this origin's browsing context group from cross-origin popups.",
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "//": "Certificate scans and screenshots are content-hashed by nature (they change name, not content) — cache them hard.",
+      "source": "/certificates/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/screenshots/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
+}
