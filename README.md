@@ -6,7 +6,7 @@
 
 A responsive, dark-first portfolio with a polished light theme, animated project case studies, and accessible interactions.
 
-<a href="https://personal-portfolio-5hey45qti-harshitraj7304s-projects.vercel.app"><img src="https://img.shields.io/badge/🌐_Live_Portfolio-Visit-7c3aed?style=for-the-badge" alt="Visit the live portfolio" /></a>
+<a href="https://personal-portfolio-git-main-harshitraj7304s-projects.vercel.app"><img src="https://img.shields.io/badge/🌐_Live_Portfolio-Visit-7c3aed?style=for-the-badge" alt="Visit the live portfolio" /></a>
 <a href="https://github.com/harshitraj7304/personal-portfolio"><img src="https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github" alt="View source on GitHub" /></a>
 
 <br />
@@ -109,7 +109,7 @@ Assets live in `public/`: replace `public/harshit.jpg` (portrait), `public/resum
 
 ## 📝 Production notes
 
-- **Custom domain:** the live site currently uses its Vercel deployment URL. The canonical metadata in `index.html` points to `https://harshitraj.dev`; update it when that domain is ready to serve this version of the portfolio.
+- **Canonical URL:** metadata and sitemap use the stable Vercel production URL. Update them together if you configure a custom domain you own.
 - **OG image:** add a real `public/og-image.png` (1200×630) and confirm the path in `index.html`.
 - **Contact form:** currently opens the visitor's email client (`mailto`).
 - **Certificate links:** add `credentialUrl`s in `src/data/certifications.js` if/when available.

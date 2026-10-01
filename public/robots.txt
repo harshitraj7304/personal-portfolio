@@ -8,4 +8,4 @@ Disallow: /admin
 Disallow: /api/
 Disallow: /share/
 
-Sitemap: https://harshitraj.dev/sitemap.xml
+Sitemap: https://personal-portfolio-git-main-harshitraj7304s-projects.vercel.app/sitemap.xml

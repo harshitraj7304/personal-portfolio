@@ -41,7 +41,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 This value is the HMAC key for OTP digests and share tokens. **Changing it later
 invalidates every outstanding OTP and every share link** — the digests stored in
 the database were computed with the old key and will no longer match. Generate
-once, store in your password manager, reuse across environments *or* accept that
+once, store in your password manager, reuse across environments _or_ accept that
 staging and production have separate share links.
 
 ---
@@ -51,7 +51,7 @@ staging and production have separate share links.
 ### 2.1 Create the project
 
 1. <https://supabase.com/dashboard> → **New project**.
-2. Name: `harshitraj-dev`. Region: **Mumbai (ap-south-1)** — you and most of your
+2. Name: `portfolio-db`. Region: **Mumbai (ap-south-1)** — you and most of your
    visitors are in India; every millisecond of database latency is paid on every
    request.
 3. Set a strong database password and save it. You will not need it for the app
@@ -63,10 +63,10 @@ staging and production have separate share links.
 
 **Project Settings → API**:
 
-| Dashboard label | Environment variable | Sensitivity |
-|---|---|---|
-| Project URL | `SUPABASE_URL` | Public — appears in requests anyway |
-| `anon` `public` | `SUPABASE_ANON_KEY` | Publishable. Safe *only because* RLS is on. |
+| Dashboard label         | Environment variable        | Sensitivity                                      |
+| ----------------------- | --------------------------- | ------------------------------------------------ |
+| Project URL             | `SUPABASE_URL`              | Public — appears in requests anyway              |
+| `anon` `public`         | `SUPABASE_ANON_KEY`         | Publishable. Safe _only because_ RLS is on.      |
 | `service_role` `secret` | `SUPABASE_SERVICE_ROLE_KEY` | **Full database access. Bypasses RLS entirely.** |
 
 The service-role key is the single most dangerous value in this project. It is a
@@ -93,10 +93,10 @@ before going further.
 `0003_storage.sql` creates both buckets by inserting into `storage.buckets`.
 Check **Storage** in the dashboard:
 
-| Bucket | Public | Size limit | Contents |
-|---|---|---|---|
-| `public-assets` | ✅ yes | 25 MB | Certificate scans, project screenshots, OG images — things already visible on the site |
-| `private-vault` | ❌ **no** | 100 MB | Marksheets, LORs, offer letters, personal photos |
+| Bucket          | Public    | Size limit | Contents                                                                               |
+| --------------- | --------- | ---------- | -------------------------------------------------------------------------------------- |
+| `public-assets` | ✅ yes    | 25 MB      | Certificate scans, project screenshots, OG images — things already visible on the site |
+| `private-vault` | ❌ **no** | 100 MB     | Marksheets, LORs, offer letters, personal photos                                       |
 
 If `private-vault` shows as public, stop and fix it. Everything downstream
 assumes objects in that bucket are unreachable without a signed URL.
@@ -107,13 +107,15 @@ assumes objects in that bucket are unreachable without a signed URL.
 (no Google, no GitHub — there is no public signup in this system).
 
 **Authentication → Sign In / Providers → Email**:
+
 - **Confirm email**: off. Accounts are created by `scripts/bootstrap-admin.mjs`
   with `email_confirm: true`; there is no self-registration to confirm.
 - **Secure email change**: on.
 
 **Authentication → URL Configuration**:
-- Site URL: `https://harshitraj.dev`
-- Redirect URLs: `https://harshitraj.dev/**`, `http://localhost:5173/**`
+
+- Site URL: your active Vercel deployment URL
+- Redirect URLs: your active Vercel deployment URL with `/**`, plus `http://localhost:5173/**` for local development
 
 Supabase's own email templates are **not used**. OTPs are generated, hashed and
 verified by our code (`api/_lib/auth.js`) and delivered through Resend. The
@@ -144,20 +146,21 @@ for a personal site.
 1. <https://resend.com> → sign up.
 2. **API Keys → Create**. Permission: **Sending access** only — it does not need
    full access. Copy to `RESEND_API_KEY`.
-3. **Domains → Add domain** → `harshitraj.dev`.
+3. **Domains → Add domain** → a domain you own and want to send mail from.
 4. Add the DNS records Resend shows you at your registrar. There are three
    kinds and all three matter:
    - **SPF** (`TXT`) — states which servers may send as your domain.
    - **DKIM** (`TXT`) — cryptographically signs each message.
    - **DMARC** (`TXT`) — tells receivers what to do when the first two fail.
-     Start with `v=DMARC1; p=none; rua=mailto:you@harshitraj.dev` to collect
+     Start with `v=DMARC1; p=none; rua=mailto:you@example.com` to collect
      reports, then tighten to `p=quarantine` once they look clean.
 
    Without DKIM and SPF, Gmail routes your OTP emails to spam — which makes login
    look broken.
+
 5. Wait for verification (minutes to a few hours).
 6. Set:
-   - `RESEND_FROM_EMAIL="Harshit Raj <noreply@harshitraj.dev>"`
+   - `RESEND_FROM_EMAIL="Harshit Raj <noreply@your-verified-domain.example>"`
    - `CONTACT_NOTIFY_EMAIL=harshitraj7304845705@gmail.com`
 
 **Before your domain verifies**, Resend only allows sending to the address you
@@ -195,6 +198,7 @@ npm run bootstrap:admin
 
 It prompts for email, password (minimum 12 characters, mixed case and digits) and
 name, then:
+
 - creates the `auth.users` record with the password bcrypt-hashed by Supabase,
 - inserts the `admin_users` row with `role = 'super_admin'`,
 - writes an `activity_logs` entry.
@@ -240,8 +244,12 @@ Expected:
 {
   "ok": true,
   "config": {
-    "supabaseUrl": true, "supabaseAnonKey": true, "supabaseServiceRoleKey": true,
-    "authSecret": true, "resendApiKey": true, "anthropicApiKey": false
+    "supabaseUrl": true,
+    "supabaseAnonKey": true,
+    "supabaseServiceRoleKey": true,
+    "authSecret": true,
+    "resendApiKey": true,
+    "anthropicApiKey": false
   },
   "missing": ["ANTHROPIC_API_KEY"],
   "database": { "reachable": true }
@@ -277,34 +285,28 @@ returned to the caller.
 from `.env.example` and mark them **Sensitive** where offered (write-only —
 Vercel will not show them back to you, which is what you want).
 
-| Variable | Production | Preview | Notes |
-|---|---|---|---|
-| `SUPABASE_URL` | ✅ | ✅ | |
-| `SUPABASE_ANON_KEY` | ✅ | ✅ | |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | ✅ | Sensitive |
-| `AUTH_SECRET` | ✅ | ✅ | Sensitive. Same value in both, or share links break across environments. |
-| `PUBLIC_SITE_URL` | `https://harshitraj.dev` | leave unset | |
-| `SESSION_COOKIE_DOMAIN` | `.harshitraj.dev` | leave unset | Preview deploys are on `*.vercel.app`; a fixed domain would make cookies unsettable there. |
-| `RESEND_API_KEY` | ✅ | optional | Sensitive |
-| `RESEND_FROM_EMAIL` | ✅ | optional | |
-| `CONTACT_NOTIFY_EMAIL` | ✅ | optional | |
-| `ANTHROPIC_API_KEY` | Phase 9 | Phase 9 | Sensitive |
-| `ADMIN_BOOTSTRAP_*` | ❌ **never** | ❌ **never** | Local-only, by design |
+| Variable                    | Production                   | Preview      | Notes                                                                    |
+| --------------------------- | ---------------------------- | ------------ | ------------------------------------------------------------------------ |
+| `SUPABASE_URL`              | ✅                           | ✅           |                                                                          |
+| `SUPABASE_ANON_KEY`         | ✅                           | ✅           |                                                                          |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅                           | ✅           | Sensitive                                                                |
+| `AUTH_SECRET`               | ✅                           | ✅           | Sensitive. Same value in both, or share links break across environments. |
+| `PUBLIC_SITE_URL`           | Active Vercel deployment URL | leave unset  |                                                                          |
+| `SESSION_COOKIE_DOMAIN`     | leave unset                  | leave unset  | Host-only cookies work across Vercel deployments.                        |
+| `RESEND_API_KEY`            | ✅                           | optional     | Sensitive                                                                |
+| `RESEND_FROM_EMAIL`         | ✅                           | optional     |                                                                          |
+| `CONTACT_NOTIFY_EMAIL`      | ✅                           | optional     |                                                                          |
+| `ANTHROPIC_API_KEY`         | Phase 9                      | Phase 9      | Sensitive                                                                |
+| `ADMIN_BOOTSTRAP_*`         | ❌ **never**                 | ❌ **never** | Local-only, by design                                                    |
 
 Do **not** add `VITE_API_BASE_URL` unless the API is on a different origin than
 the frontend. Same-origin relative paths are the default and are simpler.
 
 ### 7.2 Domain
 
-1. **Settings → Domains → Add** → `harshitraj.dev`.
-2. Add `www.harshitraj.dev` as a redirect to the apex (pick one canonical host —
-   split traffic splits your SEO).
-3. At your registrar, point the apex `A` record and the `www` `CNAME` at the
-   values Vercel gives you.
-4. **Keep `harshit-raj.vercel.app` working** and redirect it to the apex.
-   Anything already linking to the old URL — a résumé PDF, a LinkedIn profile, a
-   job application from last month — keeps working, and the redirect passes the
-   accumulated SEO signal to the new domain rather than discarding it.
+The site is available at its Vercel deployment URL. A custom domain is optional;
+only add one you own, then update `PUBLIC_SITE_URL`, the canonical metadata in
+`index.html`, and the sitemap together.
 
 ### 7.3 Deploy and confirm
 
@@ -316,14 +318,14 @@ git push
 
 After the deploy, check in this order:
 
-1. `https://harshitraj.dev` — the portfolio renders as before. **This is the one
+1. Your active Vercel deployment URL — the portfolio renders. **This is the one
    that matters most.** Phase 1 must be invisible to visitors.
-2. `https://harshitraj.dev/api/health` — `ok: true`.
-3. `https://harshitraj.dev/projects/smart-quiz` — deep links still resolve
+2. `<deployment-url>/api/health` — `ok: true` after server environment variables and database migrations are configured.
+3. `<deployment-url>/projects/smart-quiz` — deep links still resolve
    (confirms the new `/api/*` rewrite did not disturb the SPA catch-all).
 4. Response headers include `strict-transport-security` and
    `x-content-type-options`.
-5. `https://harshitraj.dev/api/auth/session` returns
+5. `<deployment-url>/api/auth/session` returns
    `{"authenticated": false}` — not a 500, and not a session.
 
 If step 3 fails, the rewrite order in `vercel.json` is wrong: `/api/(.*)` must
@@ -335,13 +337,13 @@ come **before** `/(.*)`.
 
 Not oversights:
 
-| Thing | Why not | When |
-|---|---|---|
-| **SMS OTP** | India requires DLT registration and a paid gateway. Email OTP covers the same need at zero cost. | Only if you ever need phone-only recovery |
-| **WhatsApp Business API** | Needs a verified Meta Business account and a message-template approval cycle. Also — see the note below. | Phase 4+, if you decide you want it |
-| **Content-Security-Policy** | `index.html` has an inline pre-paint theme script and loads Google Fonts. A CSP written before the admin panel exists would either break the site or be so loose it achieves nothing. | Phase 10, with hashes and a report-only period first |
-| **pgvector / embeddings** | The corpus is a few dozen records. Keyword search over it is faster than a vector round-trip and far simpler to reason about. | If the archive grows past a few hundred documents |
-| **Government / identity documents** | Aadhaar, PAN and passport scans are "sensitive personal data" under the DPDP Act 2023. Storing them creates a breach-notification obligation for no benefit — DigiLocker already does this, backed by the issuing authorities. | Not planned |
+| Thing                               | Why not                                                                                                                                                                                                                        | When                                                 |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| **SMS OTP**                         | India requires DLT registration and a paid gateway. Email OTP covers the same need at zero cost.                                                                                                                               | Only if you ever need phone-only recovery            |
+| **WhatsApp Business API**           | Needs a verified Meta Business account and a message-template approval cycle. Also — see the note below.                                                                                                                       | Phase 4+, if you decide you want it                  |
+| **Content-Security-Policy**         | `index.html` has an inline pre-paint theme script and loads Google Fonts. A CSP written before the admin panel exists would either break the site or be so loose it achieves nothing.                                          | Phase 10, with hashes and a report-only period first |
+| **pgvector / embeddings**           | The corpus is a few dozen records. Keyword search over it is faster than a vector round-trip and far simpler to reason about.                                                                                                  | If the archive grows past a few hundred documents    |
+| **Government / identity documents** | Aadhaar, PAN and passport scans are "sensitive personal data" under the DPDP Act 2023. Storing them creates a breach-notification obligation for no benefit — DigiLocker already does this, backed by the issuing authorities. | Not planned                                          |
 
 > ### ⚠️ WhatsApp button — a conflict you need to decide
 >
@@ -368,14 +370,14 @@ Not oversights:
 
 ## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| `Refusing to start: VITE_SUPABASE_SERVICE_ROLE_KEY is a secret` | A secret was given a `VITE_` prefix | Remove the prefix. This guard exists so the key never reaches the browser bundle. |
-| `/api/health` returns 404 | Rewrite order, or functions not deployed | `/api/(.*)` must precede `/(.*)` in `vercel.json` |
-| `database.reachable: false` | Project paused, or wrong URL/key | Resume the project in the Supabase dashboard |
-| Login returns 500 | Migrations not run — `admin_users` does not exist | Run `0001`–`0008` |
-| Login returns 401 with correct credentials | `auth.users` exists but no `admin_users` row, or `is_active = false` | Re-run `npm run bootstrap:admin` |
-| OTP email never arrives | Domain unverified, or in spam | Check Resend → Logs. Unset `RESEND_API_KEY` locally to log codes to the console instead. |
-| Cookies not set in the browser | `SESSION_COOKIE_DOMAIN` does not match the host | Leave it unset for preview deploys and localhost |
-| `429` during testing | Rate limits are working | `delete from app_rate_limits;` in the SQL editor |
-| Deep links 404 after deploy | SPA catch-all lost or reordered | Confirm both rewrites are present, `/api/(.*)` first |
+| Symptom                                                         | Cause                                                                | Fix                                                                                      |
+| --------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `Refusing to start: VITE_SUPABASE_SERVICE_ROLE_KEY is a secret` | A secret was given a `VITE_` prefix                                  | Remove the prefix. This guard exists so the key never reaches the browser bundle.        |
+| `/api/health` returns 404                                       | Rewrite order, or functions not deployed                             | `/api/(.*)` must precede `/(.*)` in `vercel.json`                                        |
+| `database.reachable: false`                                     | Project paused, or wrong URL/key                                     | Resume the project in the Supabase dashboard                                             |
+| Login returns 500                                               | Migrations not run — `admin_users` does not exist                    | Run `0001`–`0008`                                                                        |
+| Login returns 401 with correct credentials                      | `auth.users` exists but no `admin_users` row, or `is_active = false` | Re-run `npm run bootstrap:admin`                                                         |
+| OTP email never arrives                                         | Domain unverified, or in spam                                        | Check Resend → Logs. Unset `RESEND_API_KEY` locally to log codes to the console instead. |
+| Cookies not set in the browser                                  | `SESSION_COOKIE_DOMAIN` does not match the host                      | Leave it unset for preview deploys and localhost                                         |
+| `429` during testing                                            | Rate limits are working                                              | `delete from app_rate_limits;` in the SQL editor                                         |
+| Deep links 404 after deploy                                     | SPA catch-all lost or reordered                                      | Confirm both rewrites are present, `/api/(.*)` first                                     |

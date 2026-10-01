@@ -1,4 +1,4 @@
-# harshitraj.dev — System Architecture
+# Portfolio — System Architecture
 
 > Portfolio + Digital Life Archive + Admin CMS + Document Vault + AI Assistant
 >
@@ -19,16 +19,16 @@ built from zero — but **none of the existing portfolio needs to be rewritten t
 These were presented as open questions; you did not select, so the **recommended**
 option was taken as the working default. Each is reversible at the noted cost.
 
-| # | Decision | Chosen | Cost to reverse |
-|---|---|---|---|
-| 1 | Backend approach | **Vite SPA + Vercel Serverless Functions** | Low — handlers are plain `(req,res)`; portable to Express/Next |
-| 2 | Data platform | **Supabase** (Postgres + Auth + Storage + RLS) | Medium — schema is standard Postgres; storage is behind an adapter |
-| 3 | OTP delivery | **Email OTP only** (no paid SMS) | Low — `otp_codes.channel` already models `sms` |
-| 4 | Identity documents | **Excluded** (no Aadhaar / PAN / passport) | N/A — this is a policy limit, not a technical one |
+| #   | Decision           | Chosen                                         | Cost to reverse                                                    |
+| --- | ------------------ | ---------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | Backend approach   | **Vite SPA + Vercel Serverless Functions**     | Low — handlers are plain `(req,res)`; portable to Express/Next     |
+| 2   | Data platform      | **Supabase** (Postgres + Auth + Storage + RLS) | Medium — schema is standard Postgres; storage is behind an adapter |
+| 3   | OTP delivery       | **Email OTP only** (no paid SMS)               | Low — `otp_codes.channel` already models `sms`                     |
+| 4   | Identity documents | **Excluded** (no Aadhaar / PAN / passport)     | N/A — this is a policy limit, not a technical one                  |
 
 **On (4):** storing government identity documents on a personal website creates
 liability under India's DPDP Act 2023 and buys you nothing that real DigiLocker
-doesn't already provide. The vault is scoped to *education and professional*
+doesn't already provide. The vault is scoped to _education and professional_
 documents — marksheets, degrees, certificates, offer letters, LORs, research papers.
 The schema does not forbid other uses; the policy does.
 
@@ -38,8 +38,8 @@ The schema does not forbid other uses; the policy does.
 
 ### E.1 The core principle: additive, never substitutive
 
-The single most important architectural constraint is *"do not break the existing
-portfolio."* That is enforced structurally, not by care:
+The single most important architectural constraint is _"do not break the existing
+portfolio."_ That is enforced structurally, not by care:
 
 ```
 Public section component
@@ -116,14 +116,14 @@ backend to exist. Phase 1 (this phase) touches **zero** public components.
 
 ### E.4 Two database identities, deliberately
 
-| Client | Key | Used for | Why |
-|---|---|---|---|
-| `supabaseForToken(jwt)` | anon key + user JWT | all admin data reads/writes | Runs as role `authenticated` → **RLS applies**. A bug in a handler cannot read another tenant's rows or bypass a policy. |
-| `supabaseAdmin()` | service-role key | auth admin, rate limits, audit log, storage signing | Bypasses RLS. Restricted to infrastructure operations that legitimately need it. |
+| Client                  | Key                 | Used for                                            | Why                                                                                                                      |
+| ----------------------- | ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `supabaseForToken(jwt)` | anon key + user JWT | all admin data reads/writes                         | Runs as role `authenticated` → **RLS applies**. A bug in a handler cannot read another tenant's rows or bypass a policy. |
+| `supabaseAdmin()`       | service-role key    | auth admin, rate limits, audit log, storage signing | Bypasses RLS. Restricted to infrastructure operations that legitimately need it.                                         |
 
 Most projects use the service-role key for everything and rely on handler code for
 authorization. That makes every handler a potential total-compromise. Routing admin
-*data* access through the user's JWT means RLS is a second, independent gate.
+_data_ access through the user's JWT means RLS is a second, independent gate.
 
 ---
 
@@ -134,34 +134,34 @@ Postgres, 24 tables + 2 functions + 1 curated view. Full DDL in
 
 ### F.1 Conventions applied to every content table
 
-| Column | Purpose |
-|---|---|
-| `id uuid` | `gen_random_uuid()` |
-| `visibility visibility_t` | `public` \| `unlisted` \| `private` |
-| `status content_status_t` | `draft` \| `published` \| `archived` |
-| `sort_order integer` | manual ordering in the admin UI |
-| `created_at` / `updated_at` | `updated_at` maintained by trigger |
-| `deleted_at` | **soft delete** — nothing is ever destroyed by a UI click |
+| Column                      | Purpose                                                   |
+| --------------------------- | --------------------------------------------------------- |
+| `id uuid`                   | `gen_random_uuid()`                                       |
+| `visibility visibility_t`   | `public` \| `unlisted` \| `private`                       |
+| `status content_status_t`   | `draft` \| `published` \| `archived`                      |
+| `sort_order integer`        | manual ordering in the admin UI                           |
+| `created_at` / `updated_at` | `updated_at` maintained by trigger                        |
+| `deleted_at`                | **soft delete** — nothing is ever destroyed by a UI click |
 
 **`visibility` and `status` are separate on purpose.** The spec treats
 PUBLIC/PRIVATE/DRAFT/UNLISTED as one field, but they are two orthogonal axes: a
-project can be *published yet unlisted* (live at its URL, absent from the index),
-or *public yet draft* (visible to you, not yet released). One enum cannot express
+project can be _published yet unlisted_ (live at its URL, absent from the index),
+or _public yet draft_ (visible to you, not yet released). One enum cannot express
 that. Public read requires `visibility='public' AND status='published'`.
 
 ### F.2 Table map
 
-| Group | Tables |
-|---|---|
-| Identity | `admin_users`, `otp_codes`, `login_attempts`, `app_rate_limits` |
-| Storage | `files` |
-| Portfolio | `site_profile`, `projects`, `project_files`, `skill_groups`, `skills`, `experiences`, `education`, `certificates`, `achievements` |
-| Archive | `document_categories`, `documents`, `education_documents`, `albums`, `photos`, `album_photos`, `resume_versions` |
-| Operations | `contact_messages`, `shared_links`, `share_access_logs`, `activity_logs`, `ai_conversations`, `ai_messages`, `settings` |
+| Group      | Tables                                                                                                                            |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Identity   | `admin_users`, `otp_codes`, `login_attempts`, `app_rate_limits`                                                                   |
+| Storage    | `files`                                                                                                                           |
+| Portfolio  | `site_profile`, `projects`, `project_files`, `skill_groups`, `skills`, `experiences`, `education`, `certificates`, `achievements` |
+| Archive    | `document_categories`, `documents`, `education_documents`, `albums`, `photos`, `album_photos`, `resume_versions`                  |
+| Operations | `contact_messages`, `shared_links`, `share_access_logs`, `activity_logs`, `ai_conversations`, `ai_messages`, `settings`           |
 
 ### F.3 Four structural safety constraints
 
-These make classes of accident *impossible*, rather than merely unlikely:
+These make classes of accident _impossible_, rather than merely unlikely:
 
 ```sql
 -- 1. A sensitive document can never be marked public.
@@ -180,8 +180,8 @@ create unique index resume_versions_one_current
 id boolean primary key default true, check (id)
 ```
 
-Constraint 1 is the direct mechanical answer to *"sensitive documents must never
-accidentally become publicly accessible."* It is enforced by Postgres, so no
+Constraint 1 is the direct mechanical answer to _"sensitive documents must never
+accidentally become publicly accessible."_ It is enforced by Postgres, so no
 handler bug, admin misclick, or future refactor can violate it.
 
 ### F.4 One `files` registry, not per-feature file columns
@@ -194,13 +194,13 @@ a single code path for signed-URL generation.
 `files.storage_scope` has three values, and the third one is the reason the
 migration is non-destructive:
 
-| Scope | Bucket | Meaning |
-|---|---|---|
-| `static` | — | Already committed under `public/` (the 29 certificate images, project screenshots, current resume). Served by the CDN, never signed. |
-| `public` | `public-assets` | Uploaded, intended for the public site. |
-| `private` | `private-vault` | Uploaded, never publicly readable. |
+| Scope     | Bucket          | Meaning                                                                                                                              |
+| --------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `static`  | —               | Already committed under `public/` (the 29 certificate images, project screenshots, current resume). Served by the CDN, never signed. |
+| `public`  | `public-assets` | Uploaded, intended for the public site.                                                                                              |
+| `private` | `private-vault` | Uploaded, never publicly readable.                                                                                                   |
 
-So existing assets are *registered* rather than *moved*. Nothing under `public/`
+So existing assets are _registered_ rather than _moved_. Nothing under `public/`
 has to be relocated for the vault to exist, and no live URL changes.
 
 ### F.5 Preserving exact rendered strings
@@ -361,7 +361,7 @@ persisted, soft delete, and an unread badge on the dashboard driven by
 `https://wa.me/<E164>?text=<prefilled>`.
 
 > ⚠️ **Conflict you need to rule on.** A standing constraint from earlier work is
-> *"the phone number stays off the public site — resume PDF only."* A `wa.me` link
+> _"the phone number stays off the public site — resume PDF only."_ A `wa.me` link
 > necessarily contains the number in the page HTML. These cannot both hold.
 >
 > Options: (a) accept the number becoming public; (b) route through
@@ -382,13 +382,13 @@ Two assistants, **two separate endpoints, two separate context builders, zero
 shared code path to private data.** Isolation is achieved by construction, not by
 prompt instruction — a prompt can be talked around; a missing tool cannot.
 
-| | Public assistant | Admin assistant |
-|---|---|---|
-| Endpoint | `/api/ai/public/chat` | `/api/ai/admin/chat` |
-| Auth | none (IP rate-limited) | admin session + CSRF |
-| Context | pre-compiled **public snapshot**: published projects, skills, experience, education, public certificates | live queries via the admin's own JWT (RLS-scoped) |
-| Tools | **none** — plain completion over a fixed context | read tools + *proposal-only* write tools |
-| Can reach documents / photos / inbox | **No table access whatsoever** | Yes, RLS-scoped |
+|                                      | Public assistant                                                                                         | Admin assistant                                   |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Endpoint                             | `/api/ai/public/chat`                                                                                    | `/api/ai/admin/chat`                              |
+| Auth                                 | none (IP rate-limited)                                                                                   | admin session + CSRF                              |
+| Context                              | pre-compiled **public snapshot**: published projects, skills, experience, education, public certificates | live queries via the admin's own JWT (RLS-scoped) |
+| Tools                                | **none** — plain completion over a fixed context                                                         | read tools + _proposal-only_ write tools          |
+| Can reach documents / photos / inbox | **No table access whatsoever**                                                                           | Yes, RLS-scoped                                   |
 
 **The public assistant issues no database queries.** It receives a single
 serialized public-content blob assembled by the same column allowlist that feeds
@@ -397,7 +397,7 @@ path from that endpoint to `documents`, `photos`, `contact_messages`, `files`, o
 `admin_users`. Nothing to jailbreak past.
 
 **Destructive actions are structurally gated.** The admin assistant's mutation
-tools do not mutate. They return a *proposal* — `{ action, entity, id, patch,
+tools do not mutate. They return a _proposal_ — `{ action, entity, id, patch,
 rationale }` — which the UI renders as a diff with Apply / Discard. Applying calls
 the ordinary `/api/admin/*` endpoint with the ordinary auth, validation, and audit
 path. The model is never on the write path, so "confirm before destructive
@@ -458,26 +458,26 @@ stagger container.
 
 ## M. Security architecture
 
-| Layer | Control |
-|---|---|
-| Secrets | Only `VITE_`-prefixed vars reach the browser in Vite. **No secret is ever `VITE_`-prefixed.** `api/_lib/env.js` throws at boot if a service-role or API key is found under a `VITE_` name. |
-| Transport | HTTPS only; HSTS header; `Secure` cookies in production |
-| Session | httpOnly + SameSite=Lax cookies; no token in `localStorage`; silent refresh server-side; refresh revoked on logout |
-| CSRF | SameSite=Lax blocks cross-site cookie-bearing POSTs; plus a double-submit `hr_csrf` token required on every mutating admin route |
-| Authorization | Two gates: handler-level `requireAdmin()` **and** Postgres RLS via the user's JWT |
-| Row security | RLS enabled on all 24 tables. Anon may read only `visibility='public' AND status='published' AND deleted_at IS NULL`, and only on portfolio tables. `documents`, `files`, `contact_messages`, `activity_logs`, `ai_*`, `admin_users`, `otp_codes` have **no anon policy at all** |
-| Grants | `anon` privileges revoked, then `SELECT` re-granted only on public-readable tables — a second layer beneath RLS |
-| Brute force | `login_attempts` audit + `app_rate_limits` fixed-window counters, enforced atomically in a single SQL function |
-| OTP | HMAC-stored, `timingSafeEqual` compared, 10-min TTL, 5-attempt cap, single-use, prior codes invalidated |
-| Passwords | Supabase-managed bcrypt; strength validated server-side (≥12 chars, mixed classes) |
-| Input | zod on every request body; parameterized queries throughout (no string SQL) |
-| Output | React escapes by default; no `dangerouslyInnerHTML` on user or AI content |
-| Files | Private objects only via 60-second signed URLs behind `/api/files/:id`; 404 (not 403) on unauthorized |
-| Sharing | Tokens stored as HMAC; optional password, expiry, view cap; revocable; every access logged |
-| Enumeration | Uniform responses on OTP request and password reset |
-| Errors | Generic client messages in production; details server-side only; no stack traces over the wire |
-| Audit | `activity_logs` on every login, mutation, share creation, and revoke |
-| Data minimisation | Phone and WhatsApp number live in `site_profile` but are excluded by the public column allowlist and by the `v_public_profile` view. Identity documents are out of scope by policy. |
+| Layer             | Control                                                                                                                                                                                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Secrets           | Only `VITE_`-prefixed vars reach the browser in Vite. **No secret is ever `VITE_`-prefixed.** `api/_lib/env.js` throws at boot if a service-role or API key is found under a `VITE_` name.                                                                                       |
+| Transport         | HTTPS only; HSTS header; `Secure` cookies in production                                                                                                                                                                                                                          |
+| Session           | httpOnly + SameSite=Lax cookies; no token in `localStorage`; silent refresh server-side; refresh revoked on logout                                                                                                                                                               |
+| CSRF              | SameSite=Lax blocks cross-site cookie-bearing POSTs; plus a double-submit `hr_csrf` token required on every mutating admin route                                                                                                                                                 |
+| Authorization     | Two gates: handler-level `requireAdmin()` **and** Postgres RLS via the user's JWT                                                                                                                                                                                                |
+| Row security      | RLS enabled on all 24 tables. Anon may read only `visibility='public' AND status='published' AND deleted_at IS NULL`, and only on portfolio tables. `documents`, `files`, `contact_messages`, `activity_logs`, `ai_*`, `admin_users`, `otp_codes` have **no anon policy at all** |
+| Grants            | `anon` privileges revoked, then `SELECT` re-granted only on public-readable tables — a second layer beneath RLS                                                                                                                                                                  |
+| Brute force       | `login_attempts` audit + `app_rate_limits` fixed-window counters, enforced atomically in a single SQL function                                                                                                                                                                   |
+| OTP               | HMAC-stored, `timingSafeEqual` compared, 10-min TTL, 5-attempt cap, single-use, prior codes invalidated                                                                                                                                                                          |
+| Passwords         | Supabase-managed bcrypt; strength validated server-side (≥12 chars, mixed classes)                                                                                                                                                                                               |
+| Input             | zod on every request body; parameterized queries throughout (no string SQL)                                                                                                                                                                                                      |
+| Output            | React escapes by default; no `dangerouslyInnerHTML` on user or AI content                                                                                                                                                                                                        |
+| Files             | Private objects only via 60-second signed URLs behind `/api/files/:id`; 404 (not 403) on unauthorized                                                                                                                                                                            |
+| Sharing           | Tokens stored as HMAC; optional password, expiry, view cap; revocable; every access logged                                                                                                                                                                                       |
+| Enumeration       | Uniform responses on OTP request and password reset                                                                                                                                                                                                                              |
+| Errors            | Generic client messages in production; details server-side only; no stack traces over the wire                                                                                                                                                                                   |
+| Audit             | `activity_logs` on every login, mutation, share creation, and revoke                                                                                                                                                                                                             |
+| Data minimisation | Phone and WhatsApp number live in `site_profile` but are excluded by the public column allowlist and by the `v_public_profile` view. Identity documents are out of scope by policy.                                                                                              |
 
 **Deferred deliberately:** a strict Content-Security-Policy. `index.html` runs an
 inline theme-bootstrap script and loads Google Fonts; a naive CSP would break both.
@@ -488,19 +488,19 @@ bolted on now where it would break the working site.
 
 ## N. Deployment requirements
 
-| Service | Plan | What to do |
-|---|---|---|
-| **Vercel** | Hobby is enough to start | Existing project. Add env vars per environment. Attach `harshitraj.dev`. |
-| **Supabase** | Free tier (500 MB DB, 1 GB storage) | New project. Run the 8 migrations. Create the two storage buckets (migration `0003` does this). |
-| **Resend** | Free tier (3k emails/month) | Verify the sending domain — SPF + DKIM DNS records. Until verified, only your own address can receive. |
-| **Anthropic** | Pay-as-you-go | API key. `claude-opus-5` = $5/M input, $25/M output; prompt caching cuts repeat input ~90%. |
-| **Domain** | — | `harshitraj.dev` → Vercel. Redirect `harshit-raj.vercel.app` → apex to preserve existing SEO. |
+| Service       | Plan                                | What to do                                                                                             |
+| ------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Vercel**    | Hobby is enough to start            | Existing project. Add environment variables per environment.                                           |
+| **Supabase**  | Free tier (500 MB DB, 1 GB storage) | New project. Run the 8 migrations. Create the two storage buckets (migration `0003` does this).        |
+| **Resend**    | Free tier (3k emails/month)         | Verify the sending domain — SPF + DKIM DNS records. Until verified, only your own address can receive. |
+| **Anthropic** | Pay-as-you-go                       | API key. `claude-opus-5` = $5/M input, $25/M output; prompt caching cuts repeat input ~90%.            |
+| **Domain**    | Optional                            | Use the Vercel deployment URL unless you configure a domain you own.                                   |
 
 Free-tier ceilings worth knowing: Supabase free pauses a project after 7 days of
 inactivity (a scheduled ping avoids it) and caps storage at 1 GB — enough for
 certificates and documents, not for a large photo archive. Vercel Hobby caps
 serverless execution at 10 s, which is fine for everything except long AI
-streams; those stream, so they are not affected by the *response* timeout.
+streams; those stream, so they are not affected by the _response_ timeout.
 
 ---
 
@@ -508,22 +508,22 @@ streams; those stream, so they are not affected by the *response* timeout.
 
 Canonical list lives in [`.env.example`](../.env.example). Summary:
 
-| Variable | Scope | Required for | Notes |
-|---|---|---|---|
-| `SUPABASE_URL` | server | everything | |
-| `SUPABASE_ANON_KEY` | server | admin data access | used with the user's JWT so RLS applies |
-| `SUPABASE_SERVICE_ROLE_KEY` | server | auth admin, storage signing | **bypasses RLS — never expose** |
-| `AUTH_SECRET` | server | OTP + share-token HMAC, CSRF | 32+ random bytes; rotating it invalidates outstanding OTPs and share links |
-| `PUBLIC_SITE_URL` | server | emails, share links, canonical | `https://harshitraj.dev` |
-| `SESSION_COOKIE_DOMAIN` | server | cookies | leave unset for host-only cookies (recommended) |
-| `RESEND_API_KEY` | server | OTP + contact email | absent → dev logs to console, prod returns 503 |
-| `RESEND_FROM_EMAIL` | server | email | must be on the verified domain |
-| `CONTACT_NOTIFY_EMAIL` | server | contact form | where inbox notifications land |
-| `ANTHROPIC_API_KEY` | server | AI (Phase 6) | |
-| `ANTHROPIC_MODEL` | server | AI | defaults to `claude-opus-5` |
-| `ADMIN_BOOTSTRAP_EMAIL` / `_PASSWORD` | local only | first-admin script | delete after bootstrap; never set in Vercel |
-| `WHATSAPP_*` | server | Phase B | not used yet |
-| `VITE_API_BASE_URL` | **client** | optional | a URL, not a secret. The only `VITE_` var this system adds. |
+| Variable                              | Scope      | Required for                   | Notes                                                                      |
+| ------------------------------------- | ---------- | ------------------------------ | -------------------------------------------------------------------------- |
+| `SUPABASE_URL`                        | server     | everything                     |                                                                            |
+| `SUPABASE_ANON_KEY`                   | server     | admin data access              | used with the user's JWT so RLS applies                                    |
+| `SUPABASE_SERVICE_ROLE_KEY`           | server     | auth admin, storage signing    | **bypasses RLS — never expose**                                            |
+| `AUTH_SECRET`                         | server     | OTP + share-token HMAC, CSRF   | 32+ random bytes; rotating it invalidates outstanding OTPs and share links |
+| `PUBLIC_SITE_URL`                     | server     | emails, share links, canonical | Set to the active Vercel deployment URL.                                   |
+| `SESSION_COOKIE_DOMAIN`               | server     | cookies                        | leave unset for host-only cookies (recommended)                            |
+| `RESEND_API_KEY`                      | server     | OTP + contact email            | absent → dev logs to console, prod returns 503                             |
+| `RESEND_FROM_EMAIL`                   | server     | email                          | must be on the verified domain                                             |
+| `CONTACT_NOTIFY_EMAIL`                | server     | contact form                   | where inbox notifications land                                             |
+| `ANTHROPIC_API_KEY`                   | server     | AI (Phase 6)                   |                                                                            |
+| `ANTHROPIC_MODEL`                     | server     | AI                             | defaults to `claude-opus-5`                                                |
+| `ADMIN_BOOTSTRAP_EMAIL` / `_PASSWORD` | local only | first-admin script             | delete after bootstrap; never set in Vercel                                |
+| `WHATSAPP_*`                          | server     | Phase B                        | not used yet                                                               |
+| `VITE_API_BASE_URL`                   | **client** | optional                       | a URL, not a secret. The only `VITE_` var this system adds.                |
 
 **The rule that matters:** Vite inlines every `VITE_`-prefixed variable into the
 JavaScript bundle as plaintext. A secret with a `VITE_` prefix is a published
@@ -535,18 +535,18 @@ secret. `api/_lib/env.js` asserts this at boot and refuses to start if violated.
 
 Each phase leaves the site fully working and independently deployable.
 
-| Phase | Scope | Touches public UI? |
-|---|---|---|
-| **1** ✅ | **Foundation** — env, 8 migrations, RLS, buckets, API lib (http/cookies/crypto/supabase/rate-limit/auth/audit/storage/mailer), `/api/health`, full `/api/auth/*`, admin bootstrap script, canonical domain → `harshitraj.dev` | **No** |
-| 2 | Content API + seeding — `/api/public/portfolio`, seed script importing `src/data/*.js`, `usePortfolioData()` hook with static fallback wired into existing sections | Additive only |
-| 3 | Admin shell — `/admin` lazy route, login page, protected layout, sidebar, dashboard | New routes only |
-| 4 | Contact + inbox — `/api/contact`, Resend, admin inbox, unread badge; `mailto:` retained as fallback | One additive branch in `Contact.jsx` |
-| 5 | Files + vault — upload URLs, `/api/files/:id`, documents CRUD, categories, education marksheets | No |
-| 6 | Projects / certificates / experience / education / skills CRUD from admin | No |
-| 7 | Sharing — `shared_links`, `/s/:token`, expiry, password, revoke, access log | New route only |
-| 8 | Photos, albums, milestones, resume versions | Additive |
-| 9 | AI — admin assistant (tools + proposal gate), public assistant (isolated) | Additive widget |
-| 10 | Hardening — CSP with nonce, WhatsApp decision, SEO/sitemap generation, perf pass, activity-log UI | Minimal |
+| Phase    | Scope                                                                                                                                                                                                                              | Touches public UI?                   |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| **1** ✅ | **Foundation** — env, 8 migrations, RLS, buckets, API lib (http/cookies/crypto/supabase/rate-limit/auth/audit/storage/mailer), `/api/health`, full `/api/auth/*`, admin bootstrap script, canonical URL → active Vercel deployment | **No**                               |
+| 2        | Content API + seeding — `/api/public/portfolio`, seed script importing `src/data/*.js`, `usePortfolioData()` hook with static fallback wired into existing sections                                                                | Additive only                        |
+| 3        | Admin shell — `/admin` lazy route, login page, protected layout, sidebar, dashboard                                                                                                                                                | New routes only                      |
+| 4        | Contact + inbox — `/api/contact`, Resend, admin inbox, unread badge; `mailto:` retained as fallback                                                                                                                                | One additive branch in `Contact.jsx` |
+| 5        | Files + vault — upload URLs, `/api/files/:id`, documents CRUD, categories, education marksheets                                                                                                                                    | No                                   |
+| 6        | Projects / certificates / experience / education / skills CRUD from admin                                                                                                                                                          | No                                   |
+| 7        | Sharing — `shared_links`, `/s/:token`, expiry, password, revoke, access log                                                                                                                                                        | New route only                       |
+| 8        | Photos, albums, milestones, resume versions                                                                                                                                                                                        | Additive                             |
+| 9        | AI — admin assistant (tools + proposal gate), public assistant (isolated)                                                                                                                                                          | Additive widget                      |
+| 10       | Hardening — CSP with nonce, WhatsApp decision, SEO/sitemap generation, perf pass, activity-log UI                                                                                                                                  | Minimal                              |
 
 **Rollback:** every phase is additive. Phases 1–2 can be reverted by deleting
 `api/`, `db/`, and `.env.local` — the portfolio returns to its current state with

@@ -20,7 +20,7 @@
 
 insert into public.settings (key, value, description, is_public) values
   ('site.canonical_url',
-   '"https://harshitraj.dev"'::jsonb,
+  '"https://personal-portfolio-git-main-harshitraj7304s-projects.vercel.app"'::jsonb,
    'Canonical origin for SEO, emails and share links.', true),
 
   ('features.public_api_content',
@@ -109,7 +109,7 @@ insert into public.site_profile (
   '/harshit.png',
   '/resume/Harshit_Raj_Resume.pdf',
   array['React', 'MERN', 'Java', 'AI'],
-  'https://harshitraj.dev',
+  'https://personal-portfolio-git-main-harshitraj7304s-projects.vercel.app',
   false
 )
 on conflict (id) do nothing;
