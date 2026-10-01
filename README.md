@@ -1,15 +1,34 @@
-# Harshit Raj — Developer Portfolio
+# ⚡ Harshit Raj · Developer Portfolio
 
-A premium, production-quality personal portfolio for **Harshit Raj** — Full Stack Developer (React · MERN · Java · AI). Dark-first design with a polished light mode, smooth scrollspy navigation, animated case-study project pages, and an accessible, responsive layout.
+<div align="center">
 
-## Live site
+### Full Stack Developer · Java · MERN · AI
 
-- **Portfolio:** [View the live website](https://personal-portfolio-5hey45qti-harshitraj7304s-projects.vercel.app)
-- **Source code:** [GitHub repository](https://github.com/harshitraj7304/personal-portfolio)
+A responsive, dark-first portfolio with a polished light theme, animated project case studies, and accessible interactions.
 
-The site is deployed on Vercel from the `main` branch. New commits pushed to `main` trigger a production deployment.
+<a href="https://personal-portfolio-5hey45qti-harshitraj7304s-projects.vercel.app"><img src="https://img.shields.io/badge/🌐_Live_Portfolio-Visit-7c3aed?style=for-the-badge" alt="Visit the live portfolio" /></a>
+<a href="https://github.com/harshitraj7304/personal-portfolio"><img src="https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github" alt="View source on GitHub" /></a>
 
-## Tech stack
+<br />
+
+<img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=111" alt="React 19" />
+<img src="https://img.shields.io/badge/Vite-7-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite 7" />
+<img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4" />
+<img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=flat-square&logo=javascript&logoColor=111" alt="JavaScript" />
+<img src="https://img.shields.io/badge/Deployed_on-Vercel-000?style=flat-square&logo=vercel&logoColor=white" alt="Deployed on Vercel" />
+
+</div>
+
+## ✨ Highlights
+
+- 🌗 Dark and light themes with saved preference
+- 🧭 Responsive navigation with active-section tracking
+- 💼 Experience timeline, skills, certifications, and featured projects
+- 🗂️ Animated, detailed project case-study pages
+- 🖼️ Click-to-view certificate previews
+- ♿ Keyboard-friendly controls and reduced-motion support
+
+## 🧰 Tech stack
 
 - **React 19** + **Vite** (JavaScript, no TypeScript)
 - **Tailwind CSS v4** (via `@tailwindcss/vite`, no config file — tokens live in `src/index.css`)
@@ -18,7 +37,7 @@ The site is deployed on Vercel from the `main` branch. New commits pushed to `ma
 - **lucide-react** icons · `clsx` + `tailwind-merge` + `class-variance-authority` for UI primitives
 - Fonts: **Inter** + **JetBrains Mono** (Google Fonts)
 
-## Getting started
+## 🚀 Run locally
 
 ```bash
 npm install
@@ -31,7 +50,7 @@ npm run lint     # run ESLint
 The frontend runs standalone with no backend configured — all content comes from
 `src/data/*.js`. To work on the API as well, see **Backend** below.
 
-## Backend (Phase 1 — foundation)
+## 🔐 Backend setup
 
 Server-side foundations for private admin authentication, document storage and
 contact handling are included. The public portfolio works without backend
@@ -58,7 +77,7 @@ npm run bootstrap:admin  # create the first admin account (once, locally)
 
 Start with [`docs/SETUP.md`](docs/SETUP.md).
 
-## Project structure
+## 🗂️ Project structure
 
 ```
 public/            favicon, robots.txt, sitemap.xml, _redirects, resume PDF, project screenshots
@@ -76,7 +95,7 @@ src/
   App.jsx          router + providers · main.jsx  entry
 ```
 
-## Editing content
+## ✍️ Update portfolio content
 
 All content is data-driven — edit these files, no component changes needed:
 
@@ -88,7 +107,7 @@ All content is data-driven — edit these files, no component changes needed:
 
 Assets live in `public/`: replace `public/harshit.jpg` (portrait), `public/resume/Harshit_Raj_Resume.pdf`, and screenshots under `public/projects/<slug>/`.
 
-## Production notes
+## 📝 Production notes
 
 - **Custom domain:** the live site currently uses its Vercel deployment URL. The canonical metadata in `index.html` points to `https://harshitraj.dev`; update it when that domain is ready to serve this version of the portfolio.
 - **OG image:** add a real `public/og-image.png` (1200×630) and confirm the path in `index.html`.
@@ -96,7 +115,7 @@ Assets live in `public/`: replace `public/harshit.jpg` (portrait), `public/resum
 - **Certificate links:** add `credentialUrl`s in `src/data/certifications.js` if/when available.
 - **LinkedIn:** confirm the slug in `src/data/profile.js`.
 
-## Deployment
+## ☁️ Deployment
 
 Works out of the box on **Vercel** — `vercel.json` handles SPA deep-link rewrites,
 routes `/api/*` to the serverless functions, and sets security headers. Build
@@ -110,6 +129,6 @@ the API-backed features. See [`docs/SETUP.md`](docs/SETUP.md) for setup steps.
 Note that Netlify would serve the SPA but **not** the `/api` functions, which are
 Vercel-specific.
 
-## Accessibility & performance
+## ♿ Accessibility & performance
 
 Semantic HTML, single `<h1>` per page, focus-visible rings, skip-link, keyboard-navigable menus and lightbox, `prefers-reduced-motion` support, lazy-loaded images and routes, and per-route document titles/descriptions.
