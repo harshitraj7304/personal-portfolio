@@ -34,7 +34,7 @@ export const profile = {
   socials: {
     github: 'https://github.com/harshitraj7304',
     githubUser: 'harshitraj7304',
-    linkedin: 'https://www.linkedin.com/in/harshit-raj-35a6572229',
+    linkedin: 'https://www.linkedin.com/in/harshit-raj-35a657229',
     email: 'mailto:harshitraj7304845705@gmail.com',
   },
 }
